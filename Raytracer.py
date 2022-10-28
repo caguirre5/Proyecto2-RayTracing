@@ -4,8 +4,8 @@ from figures import *
 from lights import *
 
 
-width = 1080
-height = 720
+width = 512
+height = 320
 
 centrox = 0
 centroy = -1
@@ -86,4 +86,4 @@ rtx.scene.append(AABB(position=(-2.6, -2, -5.4),
 
 rtx.glRender()
 
-rtx.glFinish("output.bmp")
+rtx.glFinish("MateTest.bmp")
