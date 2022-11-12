@@ -1,4 +1,3 @@
-import numpy as np
 import glMath as gm 
 from math import acos, atan2, pi
 
@@ -36,7 +35,7 @@ class Sphere(object):
 
     def ray_intersect(self, orig, dir):
         L = gm.Substract(self.center, orig)
-        tca = np.dot(L, dir)
+        tca = -1 * gm.Dot(L, dir)
         d = (gm.NormLength(L) ** 2 - tca ** 2) ** 0.5
 
         if d > self.radius:
@@ -53,9 +52,11 @@ class Sphere(object):
             return None
 
         # P = O + t0 * D
-        P = np.add(orig, t0 * np.array(dir))
+        #Error por uso de libreria matematica
+        import numpy as np
+        P = np.add(orig, gm.trans(dir, t0))
         normal = gm.Substract(P, self.center)
-        normal = normal / np.linalg.norm(normal)
+        normal = gm.Normalize(normal)
 
         u = 1 - ((atan2(normal[2], normal[0]) / (2 * pi)) + 0.5)
         v = acos(-normal[1]) / pi
@@ -77,15 +78,15 @@ class Plane(object):
 
     def ray_intersect(self, orig, dir):
         # Distancia = (( planePos - origRayo) o normal) / (direccionRayo o normal)
-        denom = np.dot(dir, self.normal)
+        denom = -1 * gm.Dot(dir, self.normal)
 
         if abs(denom) > 0.0001:
-            num = np.dot(np.subtract(self.position, orig), self.normal)
+            num = -1 * gm.Dot(gm.Substract(self.position, orig), self.normal)
             t = num / denom
 
             if t > 0:
                 # P = O + t*D
-                P = np.add(orig, t * np.array(dir))
+                P = gm.Add(orig, gm.trans(dir, t))
                 return Intersect(distance=t,
                                  point=P,
                                  normal=self.normal,
