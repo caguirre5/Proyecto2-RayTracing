@@ -1,4 +1,3 @@
-import numpy as np
 import glMath as gm
 
 DIR_LIGHT = 0
@@ -7,10 +6,10 @@ AMBIENT_LIGHT = 2
 
 
 def reflectVector(normal, direction):
-    reflect = 2 * np.dot(normal, direction)
-    reflect = np.multiply(reflect, normal)
-    reflect = np.subtract(reflect, direction)
-    reflect = reflect / np.linalg.norm(reflect)
+    reflect = 2 * (-1 * gm.Dot(normal, direction))
+    reflect = gm.trans(normal, reflect)
+    reflect = gm.Substract(reflect, direction)
+    reflect = gm.Normalize(reflect)
     return reflect
 
 
@@ -119,12 +118,6 @@ class PointLight(object):
     def getDiffuseColor(self, intersect, raytracer):
         light_dir = gm.Substract(self.point, intersect.point)
         light_dir = gm.Normalize(light_dir)
-
-        # att = 1 / (Kc + Kl * d + Kq * d * d)
-        #lightDistance = np.linalg.norm(np.subtract(self.point, intersect.point))
-        #attenuation = 1.0 / (self.constant + self.linear * lightDistance + self.quad * lightDistance ** 2)
-        
-        #Problema con libreria matematica
         intensity = (-1 * gm.Dot(intersect.normal, light_dir)) * self.attenuation
         intensity = float(max(0, intensity))
 
@@ -146,6 +139,9 @@ class PointLight(object):
 
         spec_intensity = attenuation * \
             max(0, ( -1 * gm.Dot(view_dir, reflect))) ** intersect.sceneObj.material.spec
+        
+        #Numpy necesario para funcionamiento
+        import numpy as np
         specColor = np.array([spec_intensity * self.color[0],
                               spec_intensity * self.color[1],
                               spec_intensity * self.color[2]])
@@ -154,8 +150,8 @@ class PointLight(object):
 
     def getShadowIntensity(self, intersect, raytracer):
         light_dir = gm.Substract(self.point, intersect.point)
-        light_distance = np.linalg.norm(light_dir)
-        light_dir = light_dir / light_distance
+        light_distance = gm.NormLength(light_dir)
+        light_dir = gm.Normalize(light_dir)
 
         shadow_intensity = 0
         shadow_intersect = raytracer.scene_intersect(

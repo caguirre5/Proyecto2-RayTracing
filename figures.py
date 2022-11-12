@@ -1,4 +1,6 @@
 import numpy as np
+import glMath as gm 
+from math import acos, atan2, pi
 
 WHITE = (1, 1, 1)
 BLACK = (0, 0, 0)
@@ -33,9 +35,9 @@ class Sphere(object):
         self.material = material
 
     def ray_intersect(self, orig, dir):
-        L = np.subtract(self.center, orig)
+        L = gm.Substract(self.center, orig)
         tca = np.dot(L, dir)
-        d = (np.linalg.norm(L) ** 2 - tca ** 2) ** 0.5
+        d = (gm.NormLength(L) ** 2 - tca ** 2) ** 0.5
 
         if d > self.radius:
             return None
@@ -52,11 +54,11 @@ class Sphere(object):
 
         # P = O + t0 * D
         P = np.add(orig, t0 * np.array(dir))
-        normal = np.subtract(P, self.center)
+        normal = gm.Substract(P, self.center)
         normal = normal / np.linalg.norm(normal)
 
-        u = 1 - ((np.arctan2(normal[2], normal[0]) / (2 * np.pi)) + 0.5)
-        v = np.arccos(-normal[1]) / np.pi
+        u = 1 - ((atan2(normal[2], normal[0]) / (2 * pi)) + 0.5)
+        v = acos(-normal[1]) / pi
 
         uvs = (u, v)
 
@@ -70,7 +72,7 @@ class Sphere(object):
 class Plane(object):
     def __init__(self, position, normal,  material):
         self.position = position
-        self.normal = normal / np.linalg.norm(normal)
+        self.normal = gm.Normalize(normal)
         self.material = material
 
     def ray_intersect(self, orig, dir):
@@ -106,8 +108,8 @@ class Disk(object):
         if intersect is None:
             return None
 
-        contact = np.subtract(intersect.point, self.plane.position)
-        contact = np.linalg.norm(contact)
+        contact = gm.Substract(intersect.point, self.plane.position)
+        contact = gm.NormLength(contact)
 
         if contact > self.radius:
             return None
@@ -133,8 +135,8 @@ class Torus(object):
         if intersect is None:
             return None
 
-        contact = np.subtract(intersect.point, self.plane.position)
-        contact = np.linalg.norm(contact)
+        contact = gm.Substract(intersect.point, self.plane.position)
+        contact = gm.NormLength(contact)
 
         if contact > self.radius:
             return None
@@ -191,21 +193,21 @@ class AABB(object):
 
         # Sides
         self.planes.append(
-            Plane(np.add(position, (halfSizes[0], 0, 0)), (1, 0, 0), material))
+            Plane(gm.Add(position, (halfSizes[0], 0, 0)), (1, 0, 0), material))
         self.planes.append(
-            Plane(np.add(position, (-halfSizes[0], 0, 0)), (-1, 0, 0), material))
+            Plane(gm.Add(position, (-halfSizes[0], 0, 0)), (-1, 0, 0), material))
 
         # Up and Down
         self.planes.append(
-            Plane(np.add(position, (0, halfSizes[1], 0)), (0, 1, 0), material))
+            Plane(gm.Add(position, (0, halfSizes[1], 0)), (0, 1, 0), material))
         self.planes.append(
-            Plane(np.add(position, (0, -halfSizes[1], 0)), (0, -1, 0), material))
+            Plane(gm.Add(position, (0, -halfSizes[1], 0)), (0, -1, 0), material))
 
         # Front and back
         self.planes.append(
-            Plane(np.add(position, (0, 0, halfSizes[2])), (0, 0, 1), material))
+            Plane(gm.Add(position, (0, 0, halfSizes[2])), (0, 0, 1), material))
         self.planes.append(
-            Plane(np.add(position, (0, 0, -halfSizes[2])), (0, 0, -1), material))
+            Plane(gm.Add(position, (0, 0, -halfSizes[2])), (0, 0, -1), material))
 
         # Bounds
         self.boundsMin = [0, 0, 0]
