@@ -48,9 +48,15 @@ def Substract(A, B):
     R = [A[i] - B[i] for i in range(min(len(A), len(B)))]
     return R
 
-def Add(A, B):
-    R = [A[i] + B[i] for i in range(min(len(A), len(B)))]
+def Add(A, B, C = None):
+    if C is None:
+        R = [A[i] + B[i] for i in range(min(len(A), len(B)))]
+    else:
+        R = [A[i] + B[i] + C[i] for i in range(min(len(A), len(B), len(C)))]
     return R
+
+def NormLength(V):
+    return m.sqrt(V[0]**2 + V[1]**2 + V[2]**2)
 
 def Normalize(V):
     L = m.sqrt(V[0]**2 + V[1]**2 + V[2]**2)
@@ -106,3 +112,10 @@ def inv(m):
         for c in range(len(cofactors)):
             cofactors[r][c] = cofactors[r][c]/determinant
     return cofactors
+
+def trans (M1, V):
+    M = []
+    for i in range(len(M1)):
+        x = M1[i] * V
+        M.append(x)
+    return M 

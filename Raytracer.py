@@ -86,4 +86,4 @@ rtx.scene.append(AABB(position=(-2.6, -2, -5.4),
 
 rtx.glRender()
 
-rtx.glFinish("MateTest.bmp")
+rtx.glFinish("MateTest2.bmp")

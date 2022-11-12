@@ -1,5 +1,4 @@
-import numpy as np
-import glMath as gm
+import glMath as gm 
 
 DIR_LIGHT = 0
 POINT_LIGHT = 1
@@ -7,10 +6,10 @@ AMBIENT_LIGHT = 2
 
 
 def reflectVector(normal, direction):
-    reflect = 2 * np.dot(normal, direction)
-    reflect = np.multiply(reflect, normal)
-    reflect = np.subtract(reflect, direction)
-    reflect = reflect / np.linalg.norm(reflect)
+    reflect = 2 * gm.Dot(normal, direction)
+    reflect = gm.trans(normal, reflect)
+    reflect = gm.Substract(reflect, direction)
+    reflect = gm.Normalize(reflect)
     return reflect
 
 
@@ -32,9 +31,11 @@ def refractVector(normal, direction, ior):
     if k < 0:  # Total Internal Reflection
         return None
 
-    m1 = gm.trans(direction, eta)
-    m2 = gm.trans(normal, (eta * cosi - k**0.5))
-    R = gm.Add(m1,m2)
+    M1 = gm.trans(direction, eta)
+    temp = eta * cosi - k**0.5
+    M2 = gm.trans(normal, temp)
+
+    R = gm.Add(M1,M2)
     return R
 
 
@@ -69,9 +70,8 @@ class DirectionalLight(object):
         self.lightType = DIR_LIGHT
 
     def getDiffuseColor(self, intersect, raytracer):
-        light_dir = gm.trans(self.direction, -1) 
-        intensity = gm.Dot(intersect.normal, light_dir) * self.intensity
-        intensity = float(max(0, intensity))
+        light_dir = gm.trans(self.direction,-1)
+        intensity = gm.Dot(max(0, intensity))
 
         diffuseColor = [intensity * self.color[0],
                                  intensity * self.color[1],
@@ -120,12 +120,7 @@ class PointLight(object):
         light_dir = gm.Substract(self.point, intersect.point)
         light_dir = gm.Normalize(light_dir)
 
-        # att = 1 / (Kc + Kl * d + Kq * d * d)
-        #lightDistance = np.linalg.norm(np.subtract(self.point, intersect.point))
-        #attenuation = 1.0 / (self.constant + self.linear * lightDistance + self.quad * lightDistance ** 2)
-        
-        #Problema con libreria matematica
-        intensity = (-1 * gm.Dot(intersect.normal, light_dir)) * self.attenuation
+        intensity = gm.Dot(intersect.normal, light_dir) * self.attenuation
         intensity = float(max(0, intensity))
 
         diffuseColor = [intensity * self.color[0],
@@ -142,19 +137,20 @@ class PointLight(object):
 
         view_dir = gm.Substract(raytracer.camPosition, intersect.point)
         view_dir = gm.Normalize(view_dir)
+
         attenuation = 1.0
 
         spec_intensity = attenuation * \
-            max(0, ( -1 * gm.Dot(view_dir, reflect))) ** intersect.sceneObj.material.spec
-        specColor = np.array([spec_intensity * self.color[0],
+            max(0, gm.Dot(view_dir, reflect)) ** intersect.sceneObj.material.spec
+        specColor = [spec_intensity * self.color[0],
                               spec_intensity * self.color[1],
-                              spec_intensity * self.color[2]])
+                              spec_intensity * self.color[2]]
 
         return specColor
 
     def getShadowIntensity(self, intersect, raytracer):
         light_dir = gm.Substract(self.point, intersect.point)
-        light_distance = np.linalg.norm(light_dir)
+        light_distance = gm.NormLength(light_dir)
         light_dir = light_dir / light_distance
 
         shadow_intensity = 0

@@ -1,1 +1,0 @@
-rtx.lights.append(PointLight(point=(-10, -2, 20), attenuation=0.1))
